@@ -1,0 +1,18 @@
+{
+  "name": "Quick Settings",
+  "description": "Adds additional functionalities in Firefox OS quick settings.",
+  "developer": {
+    "name": "begeeben"
+  },
+  "package_path": "package.zip",
+  "role": "addon",
+  "type": "certified",
+  "customizations": [{
+    "filter": "system.gaiamobile.org",
+    "css": [],
+    "scripts": ["index.js"]
+  }],
+  "icons": {
+    "128": "icons/system_126.png"
+  }
+}
