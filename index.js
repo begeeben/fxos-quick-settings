@@ -91,27 +91,8 @@
   // var SettingsListener = window.wrappedJSObject.SettingsListener;
 
   function initialize() {
-
     // console.log('init quick settings');
     // console.log('SettingsListener', window.wrappedJSObject.SettingsListener);
-
-    // // Borrow some code from Gaia shared/js/settings_listener.js
-    // var _lock;
-    // function sl_getSettingsLock() {
-    //   if (_lock && !_lock.closed) { return _lock; }
-    //   var settings = window.navigator.mozSettings;
-    //   return (_lock = settings.createLock());
-    // }
-
-    // // Wire up an event listener to set brightness on slider change.
-    // var sliderEl = $$('quick-brightness-control');
-    // sliderEl.addEventListener('change', function (ev) {
-    //   sl_getSettingsLock().set({
-    //     'screen.brightness': sliderEl.value
-    //   });
-    // });
-
-    //
 
     var quickSettingsContainer = document.querySelector('#quick-settings > ul');
     quickSettingsContainer.style.flexWrap = 'wrap';
@@ -132,10 +113,7 @@
 
     initVolumeButton(settings.volume.firstChild);
     initNfcButton(settings.nfc.firstChild);
-
-    settings.flashlight.firstChild.dataset.icon = 'flash-off';
-    settings.flashlight.firstChild.dataset.enabled = false;
-    settings.flashlight.firstChild.dataset.l10nId = 'quick-settings-flashlightButton-off';
+    initFlashButton(settings.flashlight.firstChild);
 
     for (var prop in settings) {
       quickSettingsContainer.appendChild(settings[prop]);
@@ -170,8 +148,6 @@
     var originalVolume = 0;
 
     function onVolumeChanged (value) {
-      console.log('onVolumeChanged', value);
-      console.log('original', originalVolume);
       if (value > 14) {
         button.dataset.icon = 'sound-max';
         button.dataset.l10nId = 'quick-settings-volumeButton-max';
@@ -184,7 +160,6 @@
       }
 
       originalVolume = value > 0 ? value : originalVolume;
-      console.log('changed', originalVolume);
     }
 
     function onClick () {
@@ -206,7 +181,6 @@
   function initNfcButton (button) {
 
     function onNfcStatusChanged (status) {
-      console.log('onNfcStatusChanged', status);
       if (status === 'enabling' || status === 'enabled') {
         button.style.color = '#008EAB';
         button.dataset.enabled = true;
@@ -219,11 +193,9 @@
     }
 
     function onClick () {
-      console.log('onClick', button.dataset.enabled);
-      if (button.dataset.enabled) {
+      if (button.dataset.enabled === 'true') {
         window.navigator.mozSettings.createLock().set({'nfc.enabled': false});
       } else {
-        console.log('set true');
         window.navigator.mozSettings.createLock().set({'nfc.enabled': true});
       }
     }
@@ -234,6 +206,44 @@
     button.addEventListener('click', onClick);
 
     SettingsListener.observe('nfc.status', undefined, onNfcStatusChanged);
+  }
+
+  function initFlashButton (button) {
+
+    var options = {
+      mode: 'video'
+    };
+
+    var camera = window.navigator.mozCameras.getListOfCameras()[0];
+
+    function onClick () {
+      console.log('onClick', button.dataset.enabled);
+      if (button.dataset.enabled === 'true') {
+        console.log('release camera');
+        camera.release();
+
+        button.dataset.icon = 'flash-off';
+        button.dataset.enabled = false;
+        button.dataset.l10nId = 'quick-settings-flashlightButton-off';
+      } else {
+        console.log('get camera');
+        window.navigator.mozCameras.getCamera(camera, options, function (camera) {
+          console.log('set flash on');
+          camera.flashMode = 'on';
+        }, function (error) {
+          console.log(error);
+        });
+
+        button.dataset.icon = 'flash-on';
+        button.dataset.enabled = true;
+        button.dataset.l10nId = 'quick-settings-flashlightButton-on';
+      }
+    }
+
+    button.dataset.icon = 'flash-off';
+    button.dataset.enabled = false;
+    button.dataset.l10nId = 'quick-settings-flashlightButton-off';
+    button.addEventListener('click', onClick);
   }
 
 }());
