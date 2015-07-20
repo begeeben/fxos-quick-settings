@@ -130,13 +130,8 @@
       flashlight: createButton('flashlight')
     };
 
-    settings.volume.firstChild.dataset.icon = 'sound-max';
-    settings.volume.firstChild.dataset.enabled = true;
-    settings.volume.firstChild.dataset.l10nId = 'quick-settings-volumeButton-max';
-    // settings.nfc.firstChild.dataset.icon = 'nfc';
-    // settings.nfc.firstChild.dataset.enabled = false;
-    // settings.nfc.firstChild.dataset.l10nId = 'quick-settings-nfcButton-off';
-    initNfc(settings.nfc.firstChild);
+    initVolumeButton(settings.volume.firstChild);
+    initNfcButton(settings.nfc.firstChild);
 
     settings.flashlight.firstChild.dataset.icon = 'flash-off';
     settings.flashlight.firstChild.dataset.enabled = false;
@@ -164,14 +159,51 @@
     a.id = 'quick-settings-' + name;
     a.classList.add('icon');
     a.classList.add('bb-button');
-    // a.dataset.icon = name;
     a.setAttribute('role', 'button');
     li.appendChild(a);
 
     return li;
   }
 
-  function initNfc (button) {
+  function initVolumeButton (button) {
+
+    var originalVolume = 0;
+
+    function onVolumeChanged (value) {
+      console.log('onVolumeChanged', value);
+      console.log('original', originalVolume);
+      if (value > 14) {
+        button.dataset.icon = 'sound-max';
+        button.dataset.l10nId = 'quick-settings-volumeButton-max';
+      } else if (value < 1) {
+        button.dataset.icon = 'mute';
+        button.dataset.l10nId = 'quick-settings-volumeButton-mute';
+      } else {
+        button.dataset.icon = 'sound-min';
+        button.dataset.l10nId = 'quick-settings-volumeButton-min';
+      }
+
+      originalVolume = value > 0 ? value : originalVolume;
+      console.log('changed', originalVolume);
+    }
+
+    function onClick () {
+      if (button.dataset.icon === 'mute') {
+        window.navigator.mozSettings.createLock().set({'audio.volume.notification': originalVolume});
+      } else {
+        window.navigator.mozSettings.createLock().set({'audio.volume.notification': 0});
+      }
+    }
+
+    button.dataset.icon = 'sound-max';
+    // button.dataset.enabled = false;
+    button.dataset.l10nId = 'quick-settings-volumeButton-max';
+    button.addEventListener('click', onClick);
+
+    SettingsListener.observe('audio.volume.notification', '', onVolumeChanged);
+  }
+
+  function initNfcButton (button) {
 
     function onNfcStatusChanged (status) {
       console.log('onNfcStatusChanged', status);
