@@ -1,6 +1,6 @@
 (function () {
 
-  // borrowed from shared/js/settings_listener.js
+  // Borrowed from shared/js/settings_listener.js
   var SettingsListener = {
     /* lock stores here */
     _lock: null,
@@ -186,9 +186,20 @@
       }
     }
 
+    function onClick () {
+      console.log('onClick', button.dataset.enabled);
+      if (button.dataset.enabled) {
+        window.navigator.mozSettings.createLock().set({'nfc.enabled': false});
+      } else {
+        console.log('set true');
+        window.navigator.mozSettings.createLock().set({'nfc.enabled': true});
+      }
+    }
+
     button.dataset.icon = 'nfc';
     button.dataset.enabled = false;
     button.dataset.l10nId = 'quick-settings-nfcButton-off';
+    button.addEventListener('click', onClick);
 
     SettingsListener.observe('nfc.status', undefined, onNfcStatusChanged);
   }
