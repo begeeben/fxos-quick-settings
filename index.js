@@ -214,24 +214,29 @@
       mode: 'video'
     };
 
-    var camera = window.navigator.mozCameras.getListOfCameras()[0];
+    var cameraId = window.navigator.mozCameras.getListOfCameras()[0];
+    var mozCamera;
 
     function onClick () {
       console.log('onClick', button.dataset.enabled);
       if (button.dataset.enabled === 'true') {
         console.log('release camera');
-        camera.release();
+        mozCamera.release();
 
         button.dataset.icon = 'flash-off';
         button.dataset.enabled = false;
         button.dataset.l10nId = 'quick-settings-flashlightButton-off';
       } else {
         console.log('get camera');
-        window.navigator.mozCameras.getCamera(camera, options, function (camera) {
+        window.navigator.mozCameras.getCamera(cameraId, options)
+        .then(function (result) {
           console.log('set flash on');
-          camera.flashMode = 'on';
+          mozCamera = result.camera;
+          mozCamera.flashMode = 'torch';
         }, function (error) {
           console.log(error);
+        }).catch(function (e) {
+          console.log('catch', e);
         });
 
         button.dataset.icon = 'flash-on';
