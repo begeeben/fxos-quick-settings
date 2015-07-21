@@ -217,6 +217,13 @@
     var cameraId = window.navigator.mozCameras.getListOfCameras()[0];
     var mozCamera;
 
+    // need to check if the current app uses camera or not, show an error toast if yes
+
+    // need to release camera when the screen is on after it went black
+
+    // before getCamera, need to check if any app other than the current app occupies the camera,
+    // release the camera if yes
+
     function onClick () {
       console.log('onClick', button.dataset.enabled);
       if (button.dataset.enabled === 'true') {
