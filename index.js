@@ -109,13 +109,15 @@
       volume: createButton('volume'),
       nfc: createButton('nfc'),
       flashlight: createButton('flashlight'),
-      hotspot: createButton('hotspot')
+      hotspot: createButton('hotspot'),
+      orientation: createButton('orientation')
     };
 
     initVolumeButton(settings.volume.firstChild);
     initNfcButton(settings.nfc.firstChild);
     initFlashButton(settings.flashlight.firstChild);
     initHotSpotButton(settings.hotspot.firstChild);
+    initOrientationButton(settings.orientation.firstChild);
 
     for (var prop in settings) {
       quickSettingsContainer.appendChild(settings[prop]);
@@ -262,11 +264,11 @@
   function initHotSpotButton(button) {
 
     function onHotSpotStatusChanged(status) {
-      if (status === 'enabling' || status === 'enabled') {
+      if (status) {
         button.style.color = '#008EAB';
         button.dataset.enabled = true;
         button.dataset.l10nId = 'quick-settings-hotSpotButton-on';
-      } else if (status === 'disabling' || status === 'disabled') {
+      } else {
         button.style.color = '';
         button.dataset.enabled = false;
         button.dataset.l10nId = 'quick-settings-hotSpotButton-off';
@@ -286,7 +288,37 @@
     button.dataset.l10nId = 'quick-settings-hotspotButton-off';
     button.addEventListener('click', onClick);
 
-    SettingsListener.observe('tethering.wifi.enabled', undefined, onHotSpotStatusChanged);
+    SettingsListener.observe('tethering.wifi.enabled', false, onHotSpotStatusChanged);
+  }
+
+  function initOrientationButton(button) {
+
+    function onOrientationStatusChanged(status) {
+      if (status) {
+        button.style.color = '#008EAB';
+        button.dataset.enabled = true;
+        button.dataset.l10nId = 'quick-settings-orientButton-on';
+      } else {
+        button.style.color = '';
+        button.dataset.enabled = false;
+        button.dataset.l10nId = 'quick-settings-orientButton-off';
+      }
+    }
+
+    function onClick() {
+      if (button.dataset.enabled === 'true') {
+        window.navigator.mozSettings.createLock().set({'screen.orientation.lock': false});
+      } else {
+        window.navigator.mozSettings.createLock().set({'screen.orientation.lock': true});
+      }
+    }
+
+    button.dataset.icon = 'toggle-camera-front';
+    button.dataset.enabled = false;
+    button.dataset.l10nId = 'quick-settings-orientationButton-off';
+    button.addEventListener('click', onClick);
+
+    SettingsListener.observe('screen.orientation.lock', false, onOrientationStatusChanged);
   }
 
 }());
