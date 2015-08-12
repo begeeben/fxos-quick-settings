@@ -108,12 +108,14 @@
     var settings = {
       volume: createButton('volume'),
       nfc: createButton('nfc'),
-      flashlight: createButton('flashlight')
+      flashlight: createButton('flashlight'),
+      hotspot: createButton('hotspot')
     };
 
     initVolumeButton(settings.volume.firstChild);
     initNfcButton(settings.nfc.firstChild);
     initFlashButton(settings.flashlight.firstChild);
+    initHotSpotButton(settings.hotspot.firstChild);
 
     for (var prop in settings) {
       quickSettingsContainer.appendChild(settings[prop]);
@@ -127,10 +129,9 @@
     for (var i=0; i < allSettings.length; i++) {
       allSettings[i].style.flex = '1 1 20%';
     }
-
   }
 
-  function createButton (name) {
+  function createButton(name) {
     var li = document.createElement('li');
     var a = document.createElement('a');
     a.href = '#';
@@ -143,11 +144,11 @@
     return li;
   }
 
-  function initVolumeButton (button) {
+  function initVolumeButton(button) {
 
     var originalVolume = 0;
 
-    function onVolumeChanged (value) {
+    function onVolumeChanged(value) {
       if (value > 14) {
         button.dataset.icon = 'sound-max';
         button.dataset.l10nId = 'quick-settings-volumeButton-max';
@@ -162,7 +163,7 @@
       originalVolume = value > 0 ? value : originalVolume;
     }
 
-    function onClick () {
+    function onClick() {
       if (button.dataset.icon === 'mute') {
         window.navigator.mozSettings.createLock().set({'audio.volume.notification': originalVolume});
       } else {
@@ -178,9 +179,9 @@
     SettingsListener.observe('audio.volume.notification', '', onVolumeChanged);
   }
 
-  function initNfcButton (button) {
+  function initNfcButton(button) {
 
-    function onNfcStatusChanged (status) {
+    function onNfcStatusChanged(status) {
       if (status === 'enabling' || status === 'enabled') {
         button.style.color = '#008EAB';
         button.dataset.enabled = true;
@@ -192,7 +193,7 @@
       }
     }
 
-    function onClick () {
+    function onClick() {
       if (button.dataset.enabled === 'true') {
         window.navigator.mozSettings.createLock().set({'nfc.enabled': false});
       } else {
@@ -208,7 +209,7 @@
     SettingsListener.observe('nfc.status', undefined, onNfcStatusChanged);
   }
 
-  function initFlashButton (button) {
+  function initFlashButton(button) {
 
     var options = {
       mode: 'video'
@@ -256,6 +257,36 @@
     button.dataset.enabled = false;
     button.dataset.l10nId = 'quick-settings-flashlightButton-off';
     button.addEventListener('click', onClick);
+  }
+
+  function initHotSpotButton(button) {
+
+    function onHotSpotStatusChanged(status) {
+      if (status === 'enabling' || status === 'enabled') {
+        button.style.color = '#008EAB';
+        button.dataset.enabled = true;
+        button.dataset.l10nId = 'quick-settings-hotSpotButton-on';
+      } else if (status === 'disabling' || status === 'disabled') {
+        button.style.color = '';
+        button.dataset.enabled = false;
+        button.dataset.l10nId = 'quick-settings-hotSpotButton-off';
+      }
+    }
+
+    function onClick() {
+      if (button.dataset.enabled === 'true') {
+        window.navigator.mozSettings.createLock().set({'tethering.wifi.enabled': false});
+      } else {
+        window.navigator.mozSettings.createLock().set({'tethering.wifi.enabled': true});
+      }
+    }
+
+    button.dataset.icon = 'tethering';
+    button.dataset.enabled = false;
+    button.dataset.l10nId = 'quick-settings-hotspotButton-off';
+    button.addEventListener('click', onClick);
+
+    SettingsListener.observe('tethering.wifi.enabled', undefined, onHotSpotStatusChanged);
   }
 
 }());
