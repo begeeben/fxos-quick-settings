@@ -109,19 +109,26 @@
       volume: createButton('volume'),
       nfc: createButton('nfc'),
       flashlight: createButton('flashlight'),
-      hotspot: createButton('hotspot')
+      hotspot: createButton('hotspot'),
+      orientation: createButton('orientation'),
+      powersave: createButton('powersave'),
+      location: createButton('location')
     };
 
     initVolumeButton(settings.volume.firstChild);
     initNfcButton(settings.nfc.firstChild);
     initFlashButton(settings.flashlight.firstChild);
     initHotSpotButton(settings.hotspot.firstChild);
+    initOrientationButton(settings.orientation.firstChild);
+    initPowersaveButton(settings.powersave.firstChild);
+    initLocationButton(settings.location.firstChild);
 
     for (var prop in settings) {
       quickSettingsContainer.appendChild(settings[prop]);
     }
 
-    // XXX: Add 2 additional li as placeholders to layout buttons correctly
+    // XXX: Add 3 additional li as placeholders to layout buttons correctly
+    quickSettingsContainer.appendChild(document.createElement('li'));
     quickSettingsContainer.appendChild(document.createElement('li'));
     quickSettingsContainer.appendChild(document.createElement('li'));
 
@@ -262,11 +269,11 @@
   function initHotSpotButton(button) {
 
     function onHotSpotStatusChanged(status) {
-      if (status === 'enabling' || status === 'enabled') {
+      if (status) {
         button.style.color = '#008EAB';
         button.dataset.enabled = true;
         button.dataset.l10nId = 'quick-settings-hotSpotButton-on';
-      } else if (status === 'disabling' || status === 'disabled') {
+      } else {
         button.style.color = '';
         button.dataset.enabled = false;
         button.dataset.l10nId = 'quick-settings-hotSpotButton-off';
@@ -286,7 +293,96 @@
     button.dataset.l10nId = 'quick-settings-hotspotButton-off';
     button.addEventListener('click', onClick);
 
-    SettingsListener.observe('tethering.wifi.enabled', undefined, onHotSpotStatusChanged);
+    SettingsListener.observe('tethering.wifi.enabled', false, onHotSpotStatusChanged);
   }
 
+  function initOrientationButton(button) {
+
+    function onOrientationStatusChanged(status) {
+      if (status) {
+        button.style.color = '#008EAB';
+        button.dataset.enabled = true;
+        button.dataset.l10nId = 'quick-settings-orientButton-on';
+      } else {
+        button.style.color = '';
+        button.dataset.enabled = false;
+        button.dataset.l10nId = 'quick-settings-orientButton-off';
+      }
+    }
+
+    function onClick() {
+      if (button.dataset.enabled === 'true') {
+        window.navigator.mozSettings.createLock().set({'screen.orientation.lock': false});
+      } else {
+        window.navigator.mozSettings.createLock().set({'screen.orientation.lock': true});
+      }
+    }
+
+    button.dataset.icon = 'toggle-camera-front';
+    button.dataset.enabled = false;
+    button.dataset.l10nId = 'quick-settings-orientationButton-off';
+    button.addEventListener('click', onClick);
+
+    SettingsListener.observe('screen.orientation.lock', false, onOrientationStatusChanged);
+  }
+
+  function initPowersaveButton(button) {
+
+    function onPowersaveStatusChanged(status) {
+      if (status) {
+        button.style.color = '#008EAB';
+        button.dataset.enabled = true;
+        button.dataset.l10nId = 'quick-settings-powersaveButton-on';
+      } else {
+        button.style.color = '';
+        button.dataset.enabled = false;
+        button.dataset.l10nId = 'quick-settings-powersaveButton-off';
+      }
+    }
+
+    function onClick() {
+      if (button.dataset.enabled === 'true') {
+        window.navigator.mozSettings.createLock().set({'powersave.enabled': false});
+      } else {
+        window.navigator.mozSettings.createLock().set({'powersave.enabled': true});
+      }
+    }
+
+    button.dataset.icon = 'battery-3';
+    button.dataset.enabled = false;
+    button.dataset.l10nId = 'quick-settings-powersaveButton-off';
+    button.addEventListener('click', onClick);
+
+    SettingsListener.observe('powersave.enabled', false, onPowersaveStatusChanged);
+  }
+
+  function initLocationButton(button) {
+
+    function onLocationStatusChanged(status) {
+      if (status) {
+        button.style.color = '#008EAB';
+        button.dataset.enabled = true;
+        button.dataset.l10nId = 'quick-settings-locationButton-on';
+      } else {
+        button.style.color = '';
+        button.dataset.enabled = false;
+        button.dataset.l10nId = 'quick-settings-locationButton-off';
+      }
+    }
+
+    function onClick() {
+      if (button.dataset.enabled === 'true') {
+        window.navigator.mozSettings.createLock().set({'powersave.enabled': false});
+      } else {
+        window.navigator.mozSettings.createLock().set({'powersave.enabled': true});
+      }
+    }
+
+    button.dataset.icon = 'location';
+    button.dataset.enabled = false;
+    button.dataset.l10nId = 'quick-settings-locationButton-off';
+    button.addEventListener('click', onClick);
+
+    SettingsListener.observe('powersave.enabled', false, onLocationStatusChanged);
+  }
 }());
