@@ -106,13 +106,14 @@
     // Template:
     // <li><a href="#" id="quick-settings-wifi" class="icon bb-button" data-icon="wifi-4" data-enabled="false" role="button" data-l10n-id="quick-settings-wifiButton-off"></a></li>
     var settings = {
-      volume: createButton('volume'),
       nfc: createButton('nfc'),
+      volume: createButton('volume'),
       flashlight: createButton('flashlight'),
       hotspot: createButton('hotspot'),
       orientation: createButton('orientation'),
       powersave: createButton('powersave'),
-      location: createButton('location')
+      location: createButton('location'),
+      developer: createButton('developer')
     };
 
     initVolumeButton(settings.volume.firstChild);
@@ -122,13 +123,13 @@
     initOrientationButton(settings.orientation.firstChild);
     initPowersaveButton(settings.powersave.firstChild);
     initLocationButton(settings.location.firstChild);
+    initDeveloperButton(settings.developer.firstChild);
 
     for (var prop in settings) {
       quickSettingsContainer.appendChild(settings[prop]);
     }
 
-    // XXX: Add 3 additional li as placeholders to layout buttons correctly
-    quickSettingsContainer.appendChild(document.createElement('li'));
+    // XXX: Add 2 additional li as placeholders to layout buttons correctly
     quickSettingsContainer.appendChild(document.createElement('li'));
     quickSettingsContainer.appendChild(document.createElement('li'));
 
@@ -372,9 +373,9 @@
 
     function onClick() {
       if (button.dataset.enabled === 'true') {
-        window.navigator.mozSettings.createLock().set({'powersave.enabled': false});
+        window.navigator.mozSettings.createLock().set({'geolocation.enabled': false});
       } else {
-        window.navigator.mozSettings.createLock().set({'powersave.enabled': true});
+        window.navigator.mozSettings.createLock().set({'geolocation.enabled': true});
       }
     }
 
@@ -383,6 +384,23 @@
     button.dataset.l10nId = 'quick-settings-locationButton-off';
     button.addEventListener('click', onClick);
 
-    SettingsListener.observe('powersave.enabled', false, onLocationStatusChanged);
+    SettingsListener.observe('geolocation.enabled', false, onLocationStatusChanged);
+  }
+
+  function initDeveloperButton(button) {
+    function onClick() {
+      new MozActivity({
+        name: 'configure',
+        data: {
+          target: 'device',
+          section: 'developer'
+        }
+      });
+    }
+
+    button.dataset.icon = 'bug';
+    button.dataset.enabled = false;
+    button.dataset.l10nId = 'quick-settings-developerButton-off';
+    button.addEventListener('click', onClick);
   }
 }());
