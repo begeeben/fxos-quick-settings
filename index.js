@@ -103,35 +103,33 @@
       quickSettingsContainer.removeChild(lastButton.nextSibling);
     }
 
-    // Template:
-    // <li><a href="#" id="quick-settings-wifi" class="icon bb-button" data-icon="wifi-4" data-enabled="false" role="button" data-l10n-id="quick-settings-wifiButton-off"></a></li>
-    var settings = {
-      nfc: createButton('nfc'),
-      volume: createButton('volume'),
-      flashlight: createButton('flashlight'),
-      hotspot: createButton('hotspot'),
-      orientation: createButton('orientation'),
-      powersave: createButton('powersave'),
-      location: createButton('location'),
-      developer: createButton('developer')
+    var availableItems = {
+      'nfc': initNfcButton,
+      'volume': initVolumeButton,
+      'flashlight': initFlashButton,
+      'hotspot': initHotSpotButton,
+      'orientation': initOrientationButton,
+      'powersave': initPowersaveButton,
+      'location': initLocationButton,
+      'developer': initDeveloperButton
     };
 
-    initVolumeButton(settings.volume.firstChild);
-    initNfcButton(settings.nfc.firstChild);
-    initFlashButton(settings.flashlight.firstChild);
-    initHotSpotButton(settings.hotspot.firstChild);
-    initOrientationButton(settings.orientation.firstChild);
-    initPowersaveButton(settings.powersave.firstChild);
-    initLocationButton(settings.location.firstChild);
-    initDeveloperButton(settings.developer.firstChild);
+    var workingItems = ['nfc', 'volume', 'flashlight', 'hotspot',
+                        'orientation', 'powersave', 'location',
+                        'developer'];
 
-    for (var prop in settings) {
-      quickSettingsContainer.appendChild(settings[prop]);
+    var btn, scope = null;
+    workingItems.forEach((item) => {
+      btn = createButton(item);
+      availableItems[item].call(this, btn.firstChild);
+      quickSettingsContainer.appendChild(btn);
+    });
+
+    // Add additional li as placeholders to layout buttons correctly
+    var fillLi = 5 - workingItems.length % 5;
+    for (i=0; i < fillLi; i++) {
+      quickSettingsContainer.appendChild(document.createElement('li'));
     }
-
-    // XXX: Add 2 additional li as placeholders to layout buttons correctly
-    quickSettingsContainer.appendChild(document.createElement('li'));
-    quickSettingsContainer.appendChild(document.createElement('li'));
 
     var allSettings = document.querySelectorAll('#quick-settings > ul > li');
     for (var i=0; i < allSettings.length; i++) {
@@ -139,6 +137,8 @@
     }
   }
 
+  // Template:
+  // <li><a href="#" id="quick-settings-wifi" class="icon bb-button" data-icon="wifi-4" data-enabled="false" role="button" data-l10n-id="quick-settings-wifiButton-off"></a></li>
   function createButton(name) {
     var li = document.createElement('li');
     var a = document.createElement('a');
