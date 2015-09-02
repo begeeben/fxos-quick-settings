@@ -111,12 +111,13 @@
       'orientation': initOrientationButton,
       'powersave': initPowersaveButton,
       'location': initLocationButton,
-      'developer': initDeveloperButton
+      'developer': initDeveloperButton,
+      'config': initConfigButton
     };
 
     var workingItems = ['nfc', 'volume', 'flashlight', 'hotspot',
                         'orientation', 'powersave', 'location',
-                        'developer'];
+                        'developer', 'config'];
 
     var btn, scope = null;
     workingItems.forEach((item) => {
@@ -401,6 +402,22 @@
     button.dataset.icon = 'bug';
     button.dataset.enabled = false;
     button.dataset.l10nId = 'quick-settings-developerButton-off';
+    button.addEventListener('click', onClick);
+  }
+
+  function initConfigButton(button) {
+    function onClick() {
+      new MozActivity({
+        name: 'configure',
+        data: {
+          target: 'user'
+        }
+      });
+    }
+
+    button.dataset.icon = 'addons';
+    button.dataset.enabled = false;
+    button.dataset.l10nId = 'quick-settings-configButton-off';
     button.addEventListener('click', onClick);
   }
 }());
