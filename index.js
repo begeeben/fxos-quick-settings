@@ -79,7 +79,7 @@
   var QuickSettings = {
     _elements: {},
     supportItems: ['nfc', 'volume', 'flashlight', 'hotspot',
-                  'orientation', 'powersave', 'location',
+                  'orientation', 'powersave', 'location', 'ums',
                   'developer'],
     workingItems: [],
 
@@ -91,15 +91,13 @@
 
       this.workingItems = this.supportItems;
 
-      var key = 'quick.settings.addon';
+      var KEY = 'quick.settings.addon';
       var settings = window.navigator.mozSettings;
-      var req = settings.createLock().get(key);
+      var req = settings.createLock().get(KEY);
       req.onsccess = () => {
-        console.log('Error ooo');
-        var result = req.result[key];
-        console.log('Error '+result);
+        var result = req.result[KEY];
         if (typeof result === 'undefined') {
-          console.log('Error initial to default');
+          console.log('initial to default');
           this.workingItems = this.supportItems;
         } else {
           this.workingItems = result
@@ -107,9 +105,7 @@
       };
       req.onerror = () => {
         console.log('Error fail to get settings');
-        this.workingItems = ['nfc', 'volume', 'flashlight', 'hotspot',
-                            'orientation', 'powersave', 'location',
-                            'developer', 'config'];
+        this.workingItems = this.supportItems;
       };
 
       this.renderItems();
@@ -132,6 +128,7 @@
         'orientation': this.initOrientationButton,
         'powersave': this.initPowersaveButton,
         'location': this.initLocationButton,
+        'ums': this.initUmsButton,
         'developer': this.initDeveloperButton,
         'config': this.initConfigButton.bind(this)
       };
@@ -407,6 +404,36 @@
       button.addEventListener('click', onClick);
 
       SettingsListener.observe('geolocation.enabled', false, onLocationStatusChanged);
+    },
+
+    initUmsButton: function initUmsButton(button) {
+
+      function onLocationStatusChanged(status) {
+        if (status) {
+          button.style.color = '#008EAB';
+          button.dataset.enabled = true;
+          button.dataset.l10nId = 'quick-settings-umsButton-on';
+        } else {
+          button.style.color = '';
+          button.dataset.enabled = false;
+          button.dataset.l10nId = 'quick-settings-umsButton-off';
+        }
+      }
+
+      function onClick() {
+        if (button.dataset.enabled === 'true') {
+          window.navigator.mozSettings.createLock().set({'ums.enabled': false});
+        } else {
+          window.navigator.mozSettings.createLock().set({'ums.enabled': true});
+        }
+      }
+
+      button.dataset.icon = 'usb';
+      button.dataset.enabled = false;
+      button.dataset.l10nId = 'quick-settings-umsButton-off';
+      button.addEventListener('click', onClick);
+
+      SettingsListener.observe('ums.enabled', false, onLocationStatusChanged);
     },
 
     initDeveloperButton: function initDeveloperButton(button) {
