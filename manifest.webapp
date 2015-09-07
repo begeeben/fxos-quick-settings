@@ -12,11 +12,6 @@
     "css": [],
     "scripts": ["index.js"]
   }],
-  "permissions": {
-    "themeable":{},
-    "systemXHR":{},
-    "settings": { "access": "readwrite" }
-  },
   "activities": {
     "configure": {
       "filters": {
@@ -24,7 +19,8 @@
       },
       "href": "config.html",
       "disposition": "window"
-    }
+    },
+    "returnValue": true
   },
   "icons": {
     "128": "icons/system_126.png"
