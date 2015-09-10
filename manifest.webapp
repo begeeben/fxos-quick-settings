@@ -12,6 +12,16 @@
     "css": [],
     "scripts": ["index.js"]
   }],
+  "activities": {
+    "configure": {
+      "filters": {
+        "target": "user"
+      },
+      "href": "config.html",
+      "disposition": "window"
+    },
+    "returnValue": true
+  },
   "icons": {
     "128": "icons/system_126.png"
   }
